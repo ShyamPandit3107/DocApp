@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
@@ -13,15 +13,20 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+
+        return Post::all();
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePostRequest $request)
+    public function store(Request $request)
     {
-        //
+        $created = Post::create([
+            'title' => $request->title,
+            'body' => $request->body,
+        ]);
+        return $created;
     }
 
     /**
@@ -29,15 +34,22 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return $post;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostRequest $request, Post $post)
+    public function update(Request $request, Post $post)
     {
-        //
+        $updated = $post->update([
+            'title' => $request->title ?? $post->title,
+            'body' => $request->body ?? $post->body,
+        ]);
+        if ($updated)
+            return $post;
+        else
+            return JsonResponse::create(['message' => 'Post not updated'], 500);
     }
 
     /**
@@ -45,6 +57,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return response("the record is deleted", 204);
     }
 }

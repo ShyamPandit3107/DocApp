@@ -13,7 +13,7 @@ class CommentController extends Controller
      */
     public function index()
     {
-        //
+        return Comment::all();
     }
 
     /**
@@ -21,7 +21,10 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request)
     {
-        //
+        return Comment::create($request->validatee([
+            'body' => 'required'
+        ]));
+
     }
 
     /**
@@ -29,7 +32,7 @@ class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-        //
+        return $comment;
     }
 
     /**
@@ -37,7 +40,9 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request, Comment $comment)
     {
-        //
+        $comment->update($request->validatee([
+            'body' => 'required',
+        ]));
     }
 
     /**
@@ -45,6 +50,9 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        $comment->delete();
+        return response()->json([
+            'message' => 'Comment deleted successfully',
+        ]);
     }
 }

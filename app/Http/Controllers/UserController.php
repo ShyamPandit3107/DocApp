@@ -12,7 +12,7 @@ class UserController extends Controller
      */
     public function index(User $user)
     {
-        return $user->all();
+        return User::query()->paginate();
     }
     /**
      * Store a newly created resource in storage.

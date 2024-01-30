@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
@@ -13,7 +14,8 @@ class CommentController extends Controller
      */
     public function index()
     {
-        return Comment::all();
+        $comments = Comment::query()->paginate();
+        return CommentResource::collection($comments);
     }
 
     /**
@@ -21,10 +23,10 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request)
     {
-        return Comment::create($request->validatee([
+        $user = Comment::create($request->validatee([
             'body' => 'required'
         ]));
-
+        return new CommentResource($user);
     }
 
     /**
@@ -32,7 +34,7 @@ class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-        return $comment;
+        return new CommentResource($comment);
     }
 
     /**
@@ -43,6 +45,7 @@ class CommentController extends Controller
         $comment->update($request->validatee([
             'body' => 'required',
         ]));
+        return new CommentResource($comment);
     }
 
     /**

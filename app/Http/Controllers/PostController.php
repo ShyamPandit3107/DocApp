@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -14,7 +16,9 @@ class PostController extends Controller
     public function index()
     {
 
-        return Post::all();
+        // return Post::all();
+        $post = Post::query()->paginate(20);
+        return PostResource::collection($post);
     }
 
     /**
@@ -22,11 +26,16 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $created = Post::create([
-            'title' => $request->title,
-            'body' => $request->body,
-        ]);
-        return $created;
+        $result = DB::transaction(function () use ($request) {
+
+            $created = Post::create([
+                'title' => $request->title,
+                'body' => $request->body,
+            ]);
+            $created->users()->sync($request->user_ids);
+            return $created;
+        });
+        return new PostResource($result);
     }
 
     /**
@@ -34,7 +43,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return $post;
+        return new PostResource($post);
     }
 
     /**
@@ -47,7 +56,7 @@ class PostController extends Controller
             'body' => $request->body ?? $post->body,
         ]);
         if ($updated)
-            return $post;
+            return new PostResource($post);
         else
             return JsonResponse::create(['message' => 'Post not updated'], 500);
     }
